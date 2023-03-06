@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="/vEVM.ico">
+  <title>vEVM</title>
+  <style>
+    /* Globals */
+    @font-face {
+      font-family: 'Roboto Mono';
+      src: url('/Roboto_Mono.woff2') format('woff2');
+    }
+
+    @font-face {
+      font-family: 'Reenie Beanie';
+      src: url('/Reenie_Beanie.woff2') format('woff2');
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      color-scheme: only dark;
+    }
+
+    body {
+      font-family: 'Roboto Mono', monospace;
+      min-block-size: 100dvb;
+      inline-size: max(360px, 100% - 48px);
+      margin-inline: auto;
+      background: radial-gradient(circle at 25% 75%, hsl(0deg 0% 20%), hsl(0deg 0% 0%));
+      color: hsl(0deg 0% 100%);
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Header and footer layout */
+    header,
+    footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      padding-block: 48px;
+    }
+
+    footer {
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 32px;
+    }
+
+    /* Header */
+    .header-left,
+    .header-right {
+      inline-size: 96px;
+      block-size: 96px;
+    }
+
+    .header-left {
+      margin-inline-start: 48px;
+    }
+
+    .header-right {
+      margin-inline-end: 48px;
+    }
+
+    .header-center {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-block-end: -24px;
+    }
+
+    header picture {
+      filter: drop-shadow(0px 0px 12px hsl(180deg 54% 42% / 0.5));
+    }
+
+    .header-center h1 {
+      font-size: 2.5rem;
+      text-shadow: 0 0 6px hsl(0deg 0% 100%), 0 0 12px hsl(0deg 0% 100%), 0 0 24px hsl(180deg 100% 53%), 0 0 48px hsl(180deg 100% 53%), 0 0 96px hsl(180deg 100% 53%);
+    }
+
+    .header-center .tag {
+      font-family: 'Reenie Beanie', cursive;
+      font-size: 2rem;
+      font-weight: 700;
+      align-self: flex-end;
+      transform: rotate(-10deg) translate(40%, -30%);
+    }
+
+    /* Footer */
+    a {
+      color: hsl(180deg 100% 53%);
+      transition: color 600ms;
+    }
+
+    a:hover,
+    a:focus-within {
+      color: hsl(15deg 100% 60%);
+      transition: color 200ms;
+    }
+
+    /* Main layout */
+    main,
+    form,
+    .output-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    main {
+      flex: 1;
+    }
+
+    form,
+    .output-container {
+      inline-size: min(720px, 100%);
+      gap: 16px;
+    }
+
+    .sr-only:not(:focus):not(:active) {
+      position: absolute;
+      inline-size: 1px;
+      block-size: 1px;
+      overflow: hidden;
+      white-space: nowrap;
+      clip: rect(0 0 0 0);
+      clip-path: inset(50%);
+    }
+
+    /* Input and output layout */
+    textarea,
+    input,
+    .output-state,
+    .output-values {
+      inline-size: 100%;
+      font-family: inherit;
+      font-size: 1rem;
+      padding: 10px;
+      border: 1px solid hsl(0deg 0% 27%);
+      background: hsl(0deg 0% 7%);
+      transition: box-shadow 700ms;
+    }
+
+    textarea:hover,
+    input:hover,
+    .output-state:hover,
+    .output-values:hover {
+      box-shadow: 0 0 6px hsl(0deg 0% 100%), 0 0 12px hsl(15deg 100% 30%);
+      transition: box-shadow 300ms;
+    }
+
+    textarea:focus-within,
+    input:focus-within,
+    .output-state:focus-within,
+    .output-values:focus-within {
+      box-shadow: 0 0 6px hsl(0deg 0% 100%), 0 0 12px hsl(15deg 100% 30%), 0 0 24px hsl(15deg 100% 60%);
+      transition: box-shadow 300ms;
+    }
+
+    /* Input */
+    #code {
+      min-block-size: 15ch;
+      min-inline-size: 100%;
+      max-inline-size: calc(100dvi - 48px);
+      border-radius: 10px 10px 0 0;
+    }
+
+    .tx-params {
+      inline-size: 100%;
+      display: flex;
+      gap: 16px;
+    }
+
+    #calldata {
+      border-radius: 0 0 0 12px;
+    }
+
+    #value {
+      border-radius: 0 0 12px 0;
+    }
+
+    button {
+      font-size: 1rem;
+      background: inherit;
+      text-transform: uppercase;
+      cursor: pointer;
+      opacity: 0.75;
+      padding-block: 14px 12px;
+      padding-inline: 32px;
+      border-radius: 32px;
+      border: 2px solid hsl(0deg 0% 27%);
+      transition: opacity 800ms, box-shadow 700ms;
+    }
+
+    button:hover,
+    button:focus {
+      opacity: 1;
+      box-shadow: 0 0 6px hsl(0deg 0% 100%), 0 0 12px hsl(15deg 100% 30%), 0 0 24px hsl(15deg 100% 60%);
+      transition: opacity 200ms, box-shadow 300ms;
+    }
+
+    /* Output */
+    .output-container {
+      display: none;
+    }
+
+    output dl {
+      max-inline-size: 100%;
+    }
+
+    output {
+      inline-size: 100%;
+      word-break: break-all;
+    }
+
+    .output-state {
+      padding-block-start: 0;
+      margin-block-end: 16px;
+      border-radius: 10px 10px 0 0;
+    }
+
+    .output-values {
+      padding-block-start: 0;
+      border-radius: 0 0 10px 10px;
+    }
+
+    dt {
+      color: hsl(180deg 75% 60%);
+      margin-block-start: 8px;
+    }
+
+    dd {
+      padding-inline: 8px;
+      color: hsl(15deg 50% 60%);
+
+    }
+
+    ol {
+      padding-inline-start: 0;
+      list-style-position: inside;
+    }
+
+    li::marker {
+      content: "[" counter(list-item) "] ";
+      color: hsl(110deg 50% 60%);
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <picture class="header-left">
+      <source srcset="/vEVM.avif" type="image/avif">
+      <img width="96" height="96" src="/vEVM.png" alt="logo">
+    </picture>
+    <div class="header-center">
+      <h1>vEVM</h1>
+      <p class="tag">alt demo</p>
+    </div>
+    <div class="header-right"></div>
+  </header>
+
+  <main>
+    <form>
+      <h2>Input</h2>
+
+      <label for="code" class="sr-only">Bytecode</label>
+      <textarea name="code" id="code" placeholder="bytecode" required></textarea>
+
+      <div class="tx-params">
+        <label for="calldata" class="sr-only">Calldata</label>
+        <input name="calldata" id="calldata" placeholder="calldata">
+
+        <label for="value" class="sr-only">Value</label>
+        <input name="value" id="value" placeholder="value">
+      </div>
+
+      <button>Execute</button>
+
+      <div class="output-container">
+        <h2>Output</h2>
+
+        <label for="results" class="sr-only">Results</label>
+        <output name="results" id="results">
+          <dl>
+            <div class="output-state">
+              <dt>Memory</dt>
+              <dd id="output-memory"></dd>
+
+              <dt>Stack</dt>
+              <dd>
+                <ol start="0" id="output-stack"></ol>
+              </dd>
+
+              <dt>Storage</dt>
+              <dd>
+                <dl id="output-storage"></dl>
+              </dd>
+            </div>
+
+            <div class="output-values">
+              <dt>Return value</dt>
+              <dd id="output-value"></dd>
+
+              <dt>Logs</dt>
+              <dd>
+                <ol start="0" id="output-logs"></ol>
+              </dd>
+            </div>
+          </dl>
+        </output>
+      </div>
+    </form>
+  </main>
+
+  <footer>
+    <a href="https://vevm-demo.vercel.app/">Original</a>
+    <a href="https://github.com/ardislu/vEVM-alt">GitHub</a>
+  </footer>
+
+  <script type="module">
+    // ethers.js v6.0.8
+    import { AbiCoder } from '/vendor.js';
+    const coder = new AbiCoder();
+
+    // vEVM smart contract info
+    const node = 'https://goerli.base.org/';
+    const contract = '0x4121e8574d28b2e5f5777f7b00d435ee4886a5f4';
+    const functionSignature = '0xa8c54211'; // execute(bytes,bytes,uint256)
+    const inputTypes = ['bytes', 'bytes', 'uint256'];
+    const outputTypes = [
+      `tuple(
+        bytes code,
+        bytes data,
+        uint256 value,
+        uint256 pc,
+        bytes32[] stack,
+        bytes mem,
+        uint256 msize,
+        bytes32[] storageKey,
+        bytes32[] storageData,
+        bytes[] logs,
+        bytes output,
+        bool running,
+        bool reverting
+      )`
+    ];
+
+    // UI elements that will update
+    const outputContainer = document.querySelector('.output-container');
+    const outputMemory = document.querySelector('#output-memory');
+    const outputStack = document.querySelector('#output-stack');
+    const outputStorage = document.querySelector('#output-storage');
+    const outputValue = document.querySelector('#output-value');
+    const outputLogs = document.querySelector('#output-logs');
+
+    document.querySelector('form').addEventListener('submit', async e => {
+      e.preventDefault();
+
+      // Clean form data and set defaults for calldata and value if no value is provided
+      const formData = new FormData(e.target);
+      let code = formData.get('code');
+      let calldata = formData.get('calldata');
+      let value = formData.get('value');
+      if (code.substring(0, 2) !== '0x') {
+        code = '0x' + code;
+      }
+      if (calldata === '') {
+        calldata = '0x';
+      }
+      if (value === '') {
+        value = 0;
+      }
+
+      // Call JSON-RPC node and decode response
+      const result = await fetch(node, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          jsonrpc: '2.0',
+          id: 1,
+          method: 'eth_call',
+          params: [
+            {
+              to: contract,
+              data: `${functionSignature}${coder.encode(inputTypes, [code, calldata, value]).substring(2)}`
+            },
+            'latest'
+          ]
+        })
+      })
+        .then(r => r.json())
+        .then(o => o.result)
+        .then(r => coder.decode(outputTypes, r)[0]);
+
+      // Update UI
+      outputMemory.textContent = result.mem;
+      outputStack.innerHTML = `<li>${[...result.stack].reverse().map(v => BigInt(v).toString(16)).join('</li><li>')}</li>`;
+      outputStorage.innerHTML = result.storageKey.map((e, i) => `
+        <dt>Slot</dt>
+        <dd>${e}</dd>
+        <dt>Value</dt>
+        <dd>${result.storageData[i]}</dd>
+      `).join('');
+      outputValue.textContent = result.output;
+      outputLogs.innerHTML = `<li>${result.logs.join('</li><li>')}</li>`;
+
+      outputContainer.style.display = 'flex';
+    });
+  </script>
+</body>
+
+</html>
