@@ -10,6 +10,9 @@
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://vevm.ardis.lu/">
   <link rel="icon" href="/vEVM.ico">
+  <link rel="preload" href="/Reenie_Beanie.woff2" as="font" crossorigin>
+  <link rel="preload" href="/Roboto_Mono.woff2" as="font" crossorigin>
+  <link rel="modulepreload" href="/vendor.js">
   <title>vEVM</title>
   <style>
     /* Globals */
@@ -260,7 +263,7 @@
   <header>
     <picture class="header-left">
       <source srcset="/vEVM.avif" type="image/avif">
-      <img width="96" height="96" src="/vEVM.png" alt="logo">
+      <img width="96" height="96" src="/vEVM.png" alt="logo" fetchpriority="high">
     </picture>
     <div class="header-center">
       <h1>vEVM</h1>
